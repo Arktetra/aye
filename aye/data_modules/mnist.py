@@ -8,6 +8,7 @@ import argparse
 import aye.metadata.mnist as metadata
 
 class MNIST(DataModule):
+    """A data module for MNIST dataset."""
     
     def __init__(self, args = argparse.Namespace) -> None:
         
@@ -25,7 +26,7 @@ class MNIST(DataModule):
         TorchMNIST(root = self.data_dir, train = False, download = True)
         
     def setup(self, stage = None) -> None:
-        """Split into train, val, test and set dims."""
+        """Split into train, val, and test sets."""
         mnist_full = TorchMNIST(self.data_dir, train = True, transform = self.transform)
         self.train_dataset, self.val_dataset = random_split(mnist_full, [metadata.TRAIN_SIZE, metadata.VAL_SIZE])
         self.test_dataset = TorchMNIST(self.data_dir, train = False, transform = self.transform)
