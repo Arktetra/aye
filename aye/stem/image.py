@@ -28,3 +28,10 @@ class MNISTStem(ImageStem):
     def __init__(self):
         super().__init__()
         self.torch_transforms = torch.nn.Sequential(transforms.Normalize((0.1307, ), (0.3081, )))
+        
+class FashionMNISTStem(ImageStem):
+    """A stem for handling images from the Fashion-MNIST dataset."""
+    
+    def __init__(self):
+        super().__init__()
+        self.torch_transforms = torch.nn.Sequential(transforms.Normalize((0.2860, ), (0.3205, )))
