@@ -1,11 +1,6 @@
 """The AyeModule - an nn.Module with additional features."""
 
-from typing import (
-    Any, 
-    Callback, 
-    Sequence, 
-    Union
-)
+from typing import Any
 from typing_extensions import override
 
 import torch
@@ -34,9 +29,6 @@ class AyeModule(nn.Module):
     
     def configure_optimizers(self):
         raise NotImplementedError("`configure_optimizer` must be implemented to be used with the Aye Learner.")
-    
-    def configure_callbacks(self) -> Union[Sequence[Callback], Callback]:
-        return []
     
     def backward(self, loss: torch.Tensor, *args: Any, **kwargs: Any) -> None:
         loss.backward(*args, **kwargs)
