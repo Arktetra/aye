@@ -30,5 +30,11 @@ class AyeModule(nn.Module):
     def configure_optimizers(self):
         raise NotImplementedError("`configure_optimizer` must be implemented to be used with the Aye Learner.")
     
+    def optimizer_step(self, optimizer: torch.optim.Optimizer) -> None:
+        optimizer.step()
+    
+    def optimizer_zero_grad(self, optimizer: torch.optim.Optimizer) -> None:
+        optimizer.zero_grad()
+    
     def backward(self, loss: torch.Tensor, *args: Any, **kwargs: Any) -> None:
         loss.backward(*args, **kwargs)
