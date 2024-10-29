@@ -7,6 +7,48 @@ import torch
 import torch.nn as nn
 
 class AyeModule(nn.Module):
+    """
+    Create AyeModule.
+        
+    Examples::
+        
+        >>> from aye import AyeModule
+        >>> import torch.nn as n
+        >>> import torch.nn.functional as F
+        >>>
+        >>> class MNISTClassifier(AyeModule):
+        >>>     def __init__(self):
+        >>>         super().__init__()
+        >>>
+        >>>         self.layer_1 = nn.Linear(28 * 28, 128)
+        >>>         self.layer_2 = nn.Linear(128, 10)
+        >>>         self.criterion = F.nll_loss
+        >>>
+        >>>     def forward(self, x):
+        >>>         x = x.view(x.size(0), -1)
+        >>>         x = self.layer_1(x)
+        >>>         x = F.relu(x)
+        >>>         x = self.layer_2(x)
+        >>>         x = F.log_softmax(x, dim = 1)
+        >>>         return x
+        >>>     
+        >>>     def _shared_step(self, batch, batch_idx):
+        >>>         x, y = batch
+        >>>         self.logits = self(x)
+        >>>         return self.criterion(self.logits, y)
+        >>>
+        >>>     def training_step(self, batch, batch_idx):
+        >>>         return self._shared_step(batch, batch_idx)
+        >>>
+        >>>     def validation_step(self, batch, batch_idx):
+        >>>         return self._shared_step(batch, batch_idx)
+        >>>
+        >>>     def test_step(self, batch, batch_idx):
+        >>>         return self._shared_step(batch, batch_idx)
+        >>>
+        >>>     def configure_optimizers(self):
+        >>>         return torch.optim.Adam(params = self.parameters())
+    """
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__()
         
