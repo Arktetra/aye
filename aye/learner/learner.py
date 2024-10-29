@@ -1,6 +1,5 @@
 from aye import AyeModule
 from aye.callbacks import Callback, with_callbacks, run_callbacks, MetricsCallback
-# from aye.exceptions import CancelBatchException, CancelFitException, CancelEpochException
 from torch.utils.data import DataLoader
 from typing import Optional, Sequence
 
@@ -24,15 +23,14 @@ class Learner:
     def fit_one_batch(
         self, 
         model: AyeModule,  
-        optimizer: torch.optim.Optimizer, 
     ):
         batch = self.batch[0].to("cuda"), self.batch[1].to("cuda")
                     
         if self.training:
             loss = model.training_step(batch, self.batch_idx)
             model.backward(loss)
-            model.optimizer_step(optimizer)
-            model.optimizer_zero_grad(optimizer)
+            model.optimizer_step(self.optimizer)
+            model.optimizer_zero_grad(self.optimizer)
         else:
             loss = model.validation_step(batch, self.batch_idx)
             
@@ -46,25 +44,18 @@ class Learner:
         model: AyeModule, 
         train_dataloader: TRAIN_DATALOADER, 
         val_dataloader: VAL_DATALOADER, 
-        optimizer: torch.optim.Optimizer, 
     ):
         self.training = True
         for batch_idx, batch in enumerate(train_dataloader):
             self.batch_idx, self.batch = batch_idx, batch
-            self.fit_one_batch(model, optimizer)
-            # self.train_loss = self.loss / len(train_dataloader)
+            self.fit_one_batch(model)
             
         self.training = False
         model.eval()
         with torch.no_grad():
             for batch_idx, batch in enumerate(val_dataloader):
                 self.batch_idx, self.batch = batch_idx, batch
-                self.fit_one_batch(model, optimizer)
-                # self.val_loss = self.loss / len(val_dataloader)
-                
-        # self.log_dict["epoch"] = epoch
-        # self.log_dict["train_loss"] = self.train_loss.item()
-        # self.log_dict["val_loss"] = self.val_loss.item()
+                self.fit_one_batch(model)
 
     @with_callbacks("fit")
     def fit(
@@ -76,11 +67,11 @@ class Learner:
         if self.accelerator == "cuda":
             model.to("cuda")
         
-        optimizer = model.configure_optimizers()
+        self.optimizer = model.configure_optimizers()
         
         for epoch in range(self.epochs):
             self.epoch = epoch
-            self.fit_epoch(model, train_dataloader, val_dataloader, optimizer)
+            self.fit_epoch(model, train_dataloader, val_dataloader)
                                 
     def callback(self, method_name):
         run_callbacks(self.callbacks, method_name, self)
