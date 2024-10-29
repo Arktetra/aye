@@ -1,6 +1,7 @@
 from operator import attrgetter
 from typing import Sequence
 
+from aye.exceptions import CancelBatchException, CancelFitException, CancelEpochException
 
 class Callback:
     """
