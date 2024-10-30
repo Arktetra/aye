@@ -8,6 +8,7 @@ from PIL import Image
 
 import contextlib
 import hashlib
+import math
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -79,7 +80,7 @@ def read_image_pil(image_uri: Union[Path, str], grayscale = False) -> Image:
 def read_image(image_uri: Union[Path, str], grayscale = False) -> np.ndarray:
     return read_image_pil(image_uri, grayscale)
 
-def show_image(img: Union[np.ndarray, torch.Tensor], ax = None, figsize = None, title = None, noframe = True) -> plt.Axes:
+def show_image(img: Union[np.ndarray, torch.Tensor], ax = None, figsize = None, title = None, noframe = True, **kwargs) -> plt.Axes:
     """Display an image from array or tensor.
 
     Args:
@@ -105,7 +106,7 @@ def show_image(img: Union[np.ndarray, torch.Tensor], ax = None, figsize = None, 
     if ax is  None:
         _, ax = plt.subplots(figsize = figsize)
     
-    ax.imshow(img)
+    ax.imshow(img, **kwargs)
     
     if title is not None:
         ax.set_title(title)
@@ -117,6 +118,36 @@ def show_image(img: Union[np.ndarray, torch.Tensor], ax = None, figsize = None, 
         ax.axis("off")
         
     return ax
+
+def get_grid(n: int, nrows: int = None, ncols: int = None, title: str = None, weight: str = "bold", size: int = 14, **kwargs):
+    """Return a grid of `nrows` and `ncols` with `n` axes.
+
+    Args:
+        n (int): Number of axes.
+        nrows (int, optional): Number of rows. Defaults to None.
+        ncols (int, optional): Number of cols. Defaults to None.
+        title (str, optional): Title of the figure. Defaults to None.
+        weight (str, optional): Title font weight. Defaults to "bold".
+        size (int, optional): Ritle font size. Defaults to 14.
+    """
+    if nrows:
+        ncols = ncols or int(np.floor(n / nrows))
+    elif ncols:
+        nrows = nrows or int(np.ceils(n / ncols))
+    else:
+        nrows = int(math.sqrt(n))
+        ncols = int(np.floor(n / nrows))
+    
+    fig, axes = plt.subplots(nrows, ncols, **kwargs)
+    
+    # Make the excess axes invisible
+    for i in range(n, nrows * ncols):
+        axes.flat[i].set_axis_off()
+    
+    if title is not None:
+        fig.suptitle(title, weight = weight, size = size)
+        
+    return fig, axes
 
 def show_images(sample: Union[Tuple[torch.Tensor, torch.Tensor], torch.Tensor], mapping = None, nrows = 1, ncols = 1, figsize = None):
     """Display a grid of images from the sample.
