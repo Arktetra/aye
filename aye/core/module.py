@@ -69,7 +69,7 @@ class AyeModule(nn.Module):
         batch = kwargs.get("batch", args[0])
         return self(batch)
     
-    def configure_optimizers(self):
+    def configure_optimizers(self, lr = 1e-3):
         raise NotImplementedError("`configure_optimizer` must be implemented to be used with the Aye Learner.")
     
     def optimizer_step(self, optimizer: torch.optim.Optimizer) -> None:
