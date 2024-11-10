@@ -9,10 +9,9 @@ TRAIN_DATALOADER = DataLoader
 VAL_DATALOADER = DataLoader
 
 class Learner:
-    def __init__(self, accelerator: str = None, epochs = 5, callbacks: Sequence[Callback] = [MetricsCallback()]) -> None:
+    def __init__(self, accelerator: str = None, callbacks: Sequence[Callback] = [MetricsCallback()]) -> None:
         super().__init__()
         self.accelerator = accelerator
-        self.epochs = epochs
         self.callbacks = callbacks
         self.log_dict = {}
         
@@ -63,11 +62,14 @@ class Learner:
         model: AyeModule,
         train_dataloader: Optional[TRAIN_DATALOADER] = None,
         val_dataloader: Optional[VAL_DATALOADER] = None,
+        epochs: Optional[int] = 5,
+        lr: Optional[float] = 1e-3
     ) -> None:    
         if self.accelerator == "cuda":
             model.to("cuda")
-        
-        self.optimizer = model.configure_optimizers()
+            
+        self.epochs = epochs
+        self.optimizer = model.configure_optimizers(lr)
         
         for epoch in range(self.epochs):
             self.epoch = epoch
