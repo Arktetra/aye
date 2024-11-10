@@ -10,7 +10,7 @@ import aye.metadata.mnist as metadata
 class MNIST(DataModule):
     """A data module for MNIST dataset."""
     
-    def __init__(self, args = argparse.Namespace) -> None:
+    def __init__(self, args: argparse.Namespace = None) -> None:
         
         super().__init__(args)
         

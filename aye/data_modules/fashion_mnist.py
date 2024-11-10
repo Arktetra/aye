@@ -9,7 +9,7 @@ import aye.metadata.fashion_mnist as metadata
 class FashionMNIST(DataModule):
     """A data module for Fashion-MNIST dataset.s"""
     
-    def __init__(self, args: argparse.Namespace) -> None:
+    def __init__(self, args: argparse.Namespace = None) -> None:
         super().__init__(args)
         
         self.data_dir = metadata.DOWNLOADED_DATA_DIRNAME
