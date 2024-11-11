@@ -9,7 +9,7 @@ __all__ = [
     "Callback", 
     "run_callbacks", 
     "with_callbacks", 
-    "ProgressCallback", 
+    "ProgressCallback",
     "SingleBatchCallback", 
     "MetricsCallback",
     "LRFinderCallback"
