@@ -3,6 +3,8 @@ from aye.utils import to_cpu
 from copy import copy, deepcopy
 from torcheval.metrics import Mean 
 
+import aye
+
 class MetricsCallback(Callback):
     def __init__(self, *ms, **metrics):
         for o in ms:
@@ -24,19 +26,19 @@ class MetricsCallback(Callback):
     def _log(self, log_dict):
         print(log_dict)
 
-    def before_fit(self, learner): 
+    def before_fit(self, learner: "aye.Learner"): 
         learner.metrics = self 
 
-    def before_epoch(self, learner):
+    def before_epoch(self, learner: "aye.Learner"):
         [o.reset() for o in self.all_metrics.values()]
 
-    def after_epoch(self, learner):
+    def after_epoch(self, learner: "aye.Learner"):
         log = {}
         log["epoch"] = learner.epoch
         log.update({k: f"{v.compute():.4f}" for k, v in self.all_metrics.items()})
         self._log(log)
 
-    def after_batch(self, learner):
+    def after_batch(self, learner: "aye.Learner"):
         x, y = to_cpu(learner.batch)
         
         if learner.training:

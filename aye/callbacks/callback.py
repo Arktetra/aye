@@ -1,7 +1,8 @@
+from aye.exceptions import CancelBatchException, CancelFitException, CancelEpochException
 from operator import attrgetter
 from typing import Sequence
 
-from aye.exceptions import CancelBatchException, CancelFitException, CancelEpochException
+import aye
 
 class Callback:
     """
@@ -12,22 +13,22 @@ class Callback:
     
     order = 0
     
-    def before_fit(self, learner):
+    def before_fit(self, learner: "aye.Learner"):
         pass
     
-    def after_fit(self, learner):
+    def after_fit(self, learner: "aye.Learner"):
         pass
     
-    def before_epoch(self, learner):
+    def before_epoch(self, learner: "aye.Learner"):
         pass
     
-    def after_epoch(self, learner):
+    def after_epoch(self, learner: "aye.Learner"):
         pass
     
-    def before_batch(self, learner):
+    def before_batch(self, learner: "aye.Learner"):
         pass
     
-    def after_batch(self, learner):
+    def after_batch(self, learner: "aye.Learner"):
         pass
     
 class with_callbacks:
@@ -35,7 +36,7 @@ class with_callbacks:
         self.name = name
         
     def __call__(self, f):
-        def _f(o, *args, **kwargs):
+        def _f(o: "aye.Learner", *args, **kwargs):
             try:
                 o.callback(f'before_{self.name}')
                 f(o, *args, **kwargs)
@@ -45,7 +46,7 @@ class with_callbacks:
             
         return _f
     
-def run_callbacks(callbacks: Sequence[Callback], name: str, learner = None) -> None:
+def run_callbacks(callbacks: Sequence[Callback], name: str, learner: "aye.Learner") -> None:
     for callback in sorted(callbacks, key = attrgetter("order")):
         method = getattr(callback, name, None)
         if method is not None:
