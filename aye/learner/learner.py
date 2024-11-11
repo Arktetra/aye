@@ -1,5 +1,6 @@
 from aye import AyeModule
-from aye.callbacks import Callback, with_callbacks, run_callbacks, MetricsCallback, EarlyStopping
+from aye.callbacks import Callback, with_callbacks, run_callbacks, MetricsCallback, EarlyStopping, ModelCheckpoint
+from aye.utils import has_instance
 from torch.utils.data import DataLoader
 from typing import Optional, Sequence
 
@@ -14,15 +15,20 @@ class Learner:
         accelerator: str = None, 
         max_epochs = None, 
         callbacks: Sequence[Callback] = [MetricsCallback()],
+        enable_checkpointing: bool = True
     ) -> None:
         super().__init__()
         self.accelerator = accelerator
         self.epochs = max_epochs if max_epochs is not None else 1000
         self.callbacks = callbacks
+        self.enable_checkpointing = enable_checkpointing
         self.log_dict = {}
         
         if max_epochs is None:
             self.callbacks += [EarlyStopping(patience = 1, min_delta = 0)]
+        
+        if self.enable_checkpointing and not has_instance(self.callbacks, ModelCheckpoint):
+            self.callbacks += [ModelCheckpoint(dir_path = "./ckpt")]
         
     def log(self):
         print(self.log_dict)
@@ -76,12 +82,14 @@ class Learner:
     ) -> None:    
         if self.accelerator == "cuda":
             model.to("cuda")
-            
+        
+        self.aye_module = model
+    
         self.optimizer = model.configure_optimizers(lr)
         
         for epoch in range(self.epochs):
             self.epoch = epoch
             self.fit_epoch(model, train_dataloader, val_dataloader)
                                 
-    def callback(self, method_name):
+    def callback(self, method_name: str):
         run_callbacks(self.callbacks, method_name, self)
