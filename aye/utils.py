@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Union, Tuple, Any
+from typing import Union, Tuple, Any, Sequence
 from tqdm import tqdm
 from urllib import request
 
@@ -22,6 +22,12 @@ def to_cpu(x):
     if isinstance(x, tuple):
         return tuple(to_cpu(list(x)))
     return x.detach().cpu()
+
+def has_instance(list: Sequence, type: Any):
+    for o in list:
+        if isinstance(o, type):
+            return True
+    return False
 
 def hasattrs(obj: Any, attrs: Tuple[str]) -> bool:
     """Checks if an object obj has all attribute in attrs.
