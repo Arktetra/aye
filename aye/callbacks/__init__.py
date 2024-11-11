@@ -2,6 +2,8 @@ from .callback import Callback, run_callbacks, with_callbacks
 from .progress import ProgressCallback
 from .batch import SingleBatchCallback
 from .metrics import MetricsCallback
+from .hooks import ActivationStats
+from .early_stopping import EarlyStopping
 
 from .LRfinder import LRFinderCallback
 
@@ -12,5 +14,7 @@ __all__ = [
     "ProgressCallback",
     "SingleBatchCallback", 
     "MetricsCallback",
-    "LRFinderCallback"
+    "LRFinderCallback",
+    "ActivationStats",
+    "EarlyStopping"
 ]
