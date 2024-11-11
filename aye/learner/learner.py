@@ -1,5 +1,5 @@
 from aye import AyeModule
-from aye.callbacks import Callback, with_callbacks, run_callbacks, MetricsCallback
+from aye.callbacks import Callback, with_callbacks, run_callbacks, MetricsCallback, EarlyStopping
 from torch.utils.data import DataLoader
 from typing import Optional, Sequence
 
@@ -9,11 +9,20 @@ TRAIN_DATALOADER = DataLoader
 VAL_DATALOADER = DataLoader
 
 class Learner:
-    def __init__(self, accelerator: str = None, callbacks: Sequence[Callback] = [MetricsCallback()]) -> None:
+    def __init__(
+        self, 
+        accelerator: str = None, 
+        max_epochs = None, 
+        callbacks: Sequence[Callback] = [MetricsCallback()],
+    ) -> None:
         super().__init__()
         self.accelerator = accelerator
+        self.epochs = max_epochs if max_epochs is not None else 1000
         self.callbacks = callbacks
         self.log_dict = {}
+        
+        if max_epochs is None:
+            self.callbacks += [EarlyStopping(patience = 1, min_delta = 0)]
         
     def log(self):
         print(self.log_dict)
@@ -35,7 +44,8 @@ class Learner:
             
         self.preds = model.logits
                         
-        self.loss = loss / len(batch)
+        # self.loss = loss / len(batch)
+        self.loss = loss
             
     @with_callbacks("epoch")
     def fit_epoch(
@@ -62,13 +72,11 @@ class Learner:
         model: AyeModule,
         train_dataloader: Optional[TRAIN_DATALOADER] = None,
         val_dataloader: Optional[VAL_DATALOADER] = None,
-        epochs: Optional[int] = 5,
         lr: Optional[float] = 1e-3
     ) -> None:    
         if self.accelerator == "cuda":
             model.to("cuda")
             
-        self.epochs = epochs
         self.optimizer = model.configure_optimizers(lr)
         
         for epoch in range(self.epochs):
