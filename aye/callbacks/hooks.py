@@ -6,7 +6,6 @@ from typing import Optional
 
 import aye
 import matplotlib.pyplot as plt
-import numpy as np
 import torch
 import torch.nn as nn
 

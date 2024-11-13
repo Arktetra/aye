@@ -12,10 +12,11 @@ __all__ = [
     "Callback", 
     "run_callbacks", 
     "with_callbacks", 
+    "ActivationStats",
+    "EarlyStopping",
+    "LRFinderCallback",
     "ProgressCallback",
     "SingleBatchCallback", 
     "MetricsCallback",
-    "LRFinderCallback",
-    "ActivationStats",
-    "EarlyStopping"
+    "ModelCheckpoint",
 ]
