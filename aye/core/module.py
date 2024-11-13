@@ -82,14 +82,27 @@ class AyeModule(nn.Module):
         loss.backward(*args, **kwargs)
         
     def summary(self, x_shape):
+        """
+        Print the module summary.
+        
+        # Example
+        
+        Assuming that `model` is an instance of `AyeModule`:
+
+        >>> model.summary(x_shape = (1, 1, 28, 28))
+        """
         X = torch.randn(*x_shape)
+        
+        input_size = X.numel()     # input size is changed in the loops
+        pass_size = 0
+        
         total_params = 0
         train_params = 0
 
         layer_width = 20
         oshape_width = 35
         params_width = 20
-        total_width = layer_width + oshape_width + params_width + 2
+        total_width = layer_width + oshape_width + params_width + 3
 
         print("-" * total_width)
         print(
@@ -107,6 +120,7 @@ class AyeModule(nn.Module):
 
         for layer in layers:
             X = layer(X)
+            pass_size += X.numel()
             num_params = sum(p.numel() for p in layer.parameters())
             train_params += sum(p.numel() for p in layer.parameters() if p.requires_grad)
             total_params += num_params
@@ -122,4 +136,23 @@ class AyeModule(nn.Module):
         print("Trainable params: ", train_params)
         print("Non-trainable params: ", total_params - train_params)
 
+        print("-" * total_width)
+        
+        if layers[0].weight.dtype == torch.float16:
+            dtype_size = 2      # size of a single parameter
+        elif layers[0].weight.dtype == torch.float32:
+            dtype_size = 4
+        elif layers[0].weight.dtype == torch.float64:
+            dtype_size = 8
+            
+        input_size = dtype_size * input_size / 1024 ** 2        # change into MB
+        pass_size = 2 * dtype_size * pass_size / 1024 ** 2      # multiplied by 2 because there are two passes: forward and backward
+        params_size = dtype_size * total_params / 1024 ** 2
+        total_size = input_size + pass_size + params_size
+            
+        print(f"Input size (MB): {input_size:.3f}")
+        print(f"Forward/backward pass (MB): {pass_size:.3f}")
+        print(f"Params size (MB):  {params_size:.3f}")
+        print(f"Estimated Total Size (MB): {total_size:.3f}")
+        
         print("-" * total_width)
