@@ -12,18 +12,22 @@ VAL_DATALOADER = DataLoader
 class Learner:
     def __init__(
         self, 
-        accelerator: str = None, 
-        max_epochs = None, 
-        callbacks: Sequence[Callback] = [MetricsCallback()],
+        accelerator: Optional[str] = None, 
+        max_epochs: Optional[int] = None, 
+        callbacks: Sequence[Callback] = [],
         enable_checkpointing: bool = True
     ) -> None:
         super().__init__()
-        self.accelerator = accelerator
+        self.accelerator = accelerator if accelerator is not None else "cpu"
         self.epochs = max_epochs if max_epochs is not None else 1000
         self.callbacks = callbacks
         self.enable_checkpointing = enable_checkpointing
         self.log_dict = {}
         
+        # Make sure this is placed before EarlyStopping callback
+        if not has_instance(self.callbacks, MetricsCallback):
+            self.callbacks += [MetricsCallback()]
+            
         if max_epochs is None:
             self.callbacks += [EarlyStopping(patience = 1, min_delta = 0)]
         
@@ -38,7 +42,7 @@ class Learner:
         self, 
         model: AyeModule,  
     ):
-        batch = self.batch[0].to("cuda"), self.batch[1].to("cuda")
+        batch = self.batch[0].to(self.accelerator), self.batch[1].to(self.accelerator)
                     
         if self.training:
             loss = model.training_step(batch, self.batch_idx)
@@ -50,7 +54,6 @@ class Learner:
             
         self.preds = model.logits
                         
-        # self.loss = loss / len(batch)
         self.loss = loss
             
     @with_callbacks("epoch")
@@ -80,8 +83,7 @@ class Learner:
         val_dataloader: Optional[VAL_DATALOADER] = None,
         lr: Optional[float] = 1e-3
     ) -> None:    
-        if self.accelerator == "cuda":
-            model.to("cuda")
+        model.to(self.accelerator)
         
         self.aye_module = model
     
