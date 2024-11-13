@@ -80,3 +80,46 @@ class AyeModule(nn.Module):
     
     def backward(self, loss: torch.Tensor, *args: Any, **kwargs: Any) -> None:
         loss.backward(*args, **kwargs)
+        
+    def summary(self, x_shape):
+        X = torch.randn(*x_shape)
+        total_params = 0
+        train_params = 0
+
+        layer_width = 20
+        oshape_width = 35
+        params_width = 20
+        total_width = layer_width + oshape_width + params_width + 2
+
+        print("-" * total_width)
+        print(
+            "layer (type)".rjust(layer_width, " "), 
+            "output size".rjust(oshape_width, " "),
+            "params".rjust(params_width, " ")
+        )
+        print("=" * total_width)
+
+        layers = []
+
+        for layer in list(self.modules())[1:]:
+            if not isinstance(layer, nn.Sequential):
+                layers += [layer]
+
+        for layer in layers:
+            X = layer(X)
+            num_params = sum(p.numel() for p in layer.parameters())
+            train_params += sum(p.numel() for p in layer.parameters() if p.requires_grad)
+            total_params += num_params
+
+            print(
+                layer.__class__.__name__.rjust(layer_width, " "), 
+                f"{X.shape}".rjust(oshape_width, " "),
+                f"{num_params}".rjust(params_width, " ")
+            )
+        print("=" * total_width)
+
+        print("Total params: ", total_params)
+        print("Trainable params: ", train_params)
+        print("Non-trainable params: ", total_params - train_params)
+
+        print("-" * total_width)
