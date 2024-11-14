@@ -1,4 +1,5 @@
 from torchvision import transforms
+from typing import Tuple, Optional
 
 import torch
 
@@ -32,6 +33,13 @@ class MNISTStem(ImageStem):
 class FashionMNISTStem(ImageStem):
     """A stem for handling images from the Fashion-MNIST dataset."""
     
-    def __init__(self):
+    def __init__(self, resize: Optional[Tuple] = None):
         super().__init__()
-        self.torch_transforms = torch.nn.Sequential(transforms.Normalize((0.2860, ), (0.3205, )))
+
+        if resize is None:
+            self.torch_transforms = torch.nn.Sequential(transforms.Normalize((0.2860, ), (0.3205, )))
+        else:
+            self.torch_transforms = torch.nn.Sequential(
+                transforms.Resize(size = resize),
+                transforms.Normalize((0.2860, ), (0.3205, ))
+            )
