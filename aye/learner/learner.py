@@ -1,8 +1,17 @@
 from aye import AyeModule
-from aye.callbacks import Callback, with_callbacks, run_callbacks, MetricsCallback, EarlyStopping, ModelCheckpoint
+from aye.callbacks import (
+    Callback, 
+    with_callbacks, 
+    run_callbacks, 
+    MetricsCallback, 
+    EarlyStopping, 
+    ModelCheckpoint, 
+    ProgressBar
+)
 from aye.utils import has_instance
 from torch.utils.data import DataLoader
 from typing import Optional, Sequence
+from tqdm import tqdm
 
 import torch
 
@@ -15,7 +24,8 @@ class Learner:
         accelerator: Optional[str] = None, 
         max_epochs: Optional[int] = None, 
         callbacks: Sequence[Callback] = [],
-        enable_checkpointing: bool = True
+        enable_checkpointing: bool = True,
+        enable_progress_bar: bool = True
     ) -> None:
         super().__init__()
         self.accelerator = accelerator if accelerator is not None else "cpu"
@@ -27,7 +37,10 @@ class Learner:
         # Make sure this is placed before EarlyStopping callback
         if not has_instance(self.callbacks, MetricsCallback):
             self.callbacks += [MetricsCallback()]
-            
+
+        if enable_progress_bar:
+            self.callbacks.append(ProgressBar())
+        
         if max_epochs is None:
             self.callbacks += [EarlyStopping(patience = 1, min_delta = 0)]
         
@@ -81,13 +94,12 @@ class Learner:
         model: AyeModule,
         train_dataloader: Optional[TRAIN_DATALOADER] = None,
         val_dataloader: Optional[VAL_DATALOADER] = None,
-        lr: Optional[float] = 1e-3
     ) -> None:    
         model.to(self.accelerator)
         
         self.aye_module = model
-    
-        self.optimizer = model.configure_optimizers(lr)
+        self.num_batches = len(train_dataloader) + len(val_dataloader)
+        self.optimizer = model.configure_optimizers()
         
         for epoch in range(self.epochs):
             self.epoch = epoch
