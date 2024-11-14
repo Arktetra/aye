@@ -1,4 +1,5 @@
 from .callback import Callback
+from .metrics import MetricsCallback
 from aye.exceptions import CancelFitException
 
 import aye
@@ -9,6 +10,9 @@ class EarlyStopping(Callback):
     
     It is automatically used by `Learner` with its default setting if `max_epochs` to `Learner` is `None`.
     """
+    
+    order = MetricsCallback.order + 1
+    
     def __init__(self, patience: int = 1, min_delta: int = 0):
         super().__init__()
         self.patience = patience
@@ -20,7 +24,7 @@ class EarlyStopping(Callback):
         if validation_loss < self.min_validation_loss:
             self.min_validation_loss = validation_loss
             self.counter = 0
-        elif validation_loss > (self.min_validation_loss + self.min_delta):
+        elif validation_loss >= (self.min_validation_loss + self.min_delta):
             self.counter += 1
             if self.counter >= self.patience:
                 raise CancelFitException()
