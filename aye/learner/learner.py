@@ -11,7 +11,6 @@ from aye.callbacks import (
 from aye.utils import has_instance
 from torch.utils.data import DataLoader
 from typing import Optional, Sequence
-from tqdm import tqdm
 
 import torch
 
@@ -38,7 +37,7 @@ class Learner:
         if not has_instance(self.callbacks, MetricsCallback):
             self.callbacks += [MetricsCallback()]
 
-        if enable_progress_bar:
+        if enable_progress_bar and not has_instance(self.callbacks, ProgressBar):
             self.callbacks.append(ProgressBar())
         
         if max_epochs is None:
