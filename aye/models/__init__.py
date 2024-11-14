@@ -2,6 +2,7 @@ from .base_model import BaseModel   # make sure this is imported before other mo
 from .alexnet import AlexNet
 from .googlenet import GoogLeNet
 from .lenet import LeNet5
+from .resnet import ResNet18
 from .vgg import VGG
 
 __all__ = [
@@ -9,5 +10,6 @@ __all__ = [
     "AlexNet",
     "BaseModel",
     "GoogLeNet",
+    "ResNet18",
     "VGG"
 ]
