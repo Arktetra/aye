@@ -1,7 +1,6 @@
-from aye import AyeModule
+from aye.models import BaseModel
 from typing import List, Tuple
 
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -15,7 +14,7 @@ def vgg_block(num_convs, out_channels):
     
     return nn.Sequential(*layers)
 
-class VGG(AyeModule):
+class VGG(BaseModel):
     """
     Create a VGG model.
     
@@ -36,9 +35,10 @@ class VGG(AyeModule):
 
     >>> model.summary(x_shape = (16, 1, 224, 224))
     """
-    def __init__(self, arch: List[Tuple[int]], num_classes: int = 10, criterion: nn.functional = F.cross_entropy):
+    def __init__(self, arch: List[Tuple[int]], lr = 1e-3, num_classes: int = 10, criterion: nn.functional = F.cross_entropy):
         super().__init__()
         self.arch = arch 
+        self.lr = lr
         self.criterion = criterion
         self.num_classes = num_classes
         
@@ -57,20 +57,3 @@ class VGG(AyeModule):
         
     def forward(self, x):
         return self.net(x) 
-
-    def _shared_step(self, batch, batch_idx):
-        x, y = batch
-        self.logits = self(x)
-        return self.criterion(self.logits, y)
-
-    def training_step(self, batch, batch_idx):
-        return self._shared_step(batch, batch_idx)
-
-    def validation_step(self, batch, batch_idx):
-        return self._shared_step(batch, batch_idx)
-
-    def test_step(self, batch, batch_idx):
-        return self._shared_step(batch, batch_idx)
-
-    def configure_optimizers(self, lr = 1e-3):
-        return torch.optim.Adam(params = self.parameters(), lr = lr)

@@ -1,13 +1,13 @@
-from aye import AyeModule
+from aye.models import BaseModel
 from copy import deepcopy
 
-import torch
 import torch.nn as nn 
 import torch.nn.functional as F 
 
-class AlexNet(AyeModule):
-    def __init__(self, criterion = F.cross_entropy, act = nn.ReLU()):
+class AlexNet(BaseModel):
+    def __init__(self, lr = 1e-3, criterion = F.cross_entropy, act = nn.ReLU()):
         super().__init__()
+        self.lr = lr
         self.net = nn.Sequential(
             nn.Conv2d(in_channels = 3, out_channels = 96, kernel_size = 11, stride = 4),
             deepcopy(act),
@@ -34,20 +34,3 @@ class AlexNet(AyeModule):
         
     def forward(self, x):
         return self.net(x)
-    
-    def _shared_step(self, batch, batch_idx):
-        x, y = batch
-        self.logits = self(x)
-        return self.criterion(self.logits, y)
-    
-    def training_step(self, batch, batch_idx):
-        return self._shared_step(batch, batch_idx)
-    
-    def validation_step(self, batch, batch_idx):
-        return self._shared_step(batch, batch_idx)
-    
-    def test_step(self, batch, batch_idx):
-        return self._shared_step(batch, batch_idx)
-    
-    def configure_optimizers(self, lr = 1e-3):
-        return torch.optim.Adam(params = self.parameters(), lr = lr)
