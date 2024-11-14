@@ -2,6 +2,7 @@ from aye.data.data_module import DataModule, load_and_print_info
 from aye.stem.image import FashionMNISTStem
 from torch.utils.data import random_split
 from torchvision.datasets import FashionMNIST as TorchFashionMNIST
+from typing import Optional, Tuple
 
 import argparse
 import aye.metadata.fashion_mnist as metadata
@@ -9,11 +10,15 @@ import aye.metadata.fashion_mnist as metadata
 class FashionMNIST(DataModule):
     """A data module for Fashion-MNIST dataset.s"""
     
-    def __init__(self, args: argparse.Namespace = None) -> None:
+    def __init__(
+        self, 
+        resize: Optional[Tuple] = None, 
+        args: argparse.Namespace = None
+    ) -> None:
         super().__init__(args)
         
         self.data_dir = metadata.DOWNLOADED_DATA_DIRNAME
-        self.transform = FashionMNISTStem()
+        self.transform = FashionMNISTStem(resize = resize)
         self.input_dims = metadata.DIMS
         self.output_dims = metadata.OUTPUT_DIMS
         self.mapping = metadata.MAPPING
