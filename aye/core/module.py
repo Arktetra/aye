@@ -111,12 +111,9 @@ class AyeModule(nn.Module):
             "params".rjust(params_width, " ")
         )
         print("=" * total_width)
-
+        
         layers = []
-
-        for layer in list(self.modules())[1:]:
-            if not isinstance(layer, nn.Sequential):
-                layers += [layer]
+        list_modules(list(self.modules())[1], layers)
 
         for layer in layers:
             X = layer(X)
@@ -156,3 +153,10 @@ class AyeModule(nn.Module):
         print(f"Estimated Total Size (MB): {total_size:.3f}")
         
         print("-" * total_width)
+        
+def list_modules(module, mod_list):
+    for mod in module:
+        if isinstance(mod, nn.Sequential):
+            list_modules(mod, mod_list)
+        else:
+            mod_list.append(mod)
