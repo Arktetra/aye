@@ -1,0 +1,4 @@
+url = "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
+filename = "CIFAR10.tar.gz"
+hashtype = "md5sum"
+md5sum = "c58f30108f718f92721af3b95e74349a"
