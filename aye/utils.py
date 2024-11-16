@@ -12,6 +12,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import time
 import torch
 
 def to_cpu(x):
@@ -215,10 +216,20 @@ def temporary_working_directory(working_dir: Union[Path, str]):
     finally:
         os.chdir(curr_dir)
 
+def compute_sha1(filename: Union[Path, str]):
+    """Returns SHA1 checksum of a file."""
+    with open(filename, "rb") as f:
+        return hashlib.sha1(f.read()).hexdigest()
+
 def compute_sha256(filename: Union[Path, str]):
     """Returns SHA256 checksum of a file."""
     with open(filename, "rb") as f:
         return hashlib.sha256(f.read()).hexdigest()
+    
+def compute_md5(filename: Union[Path, str]):
+    """Returns md5sum of a file."""
+    with open(filename, "rb") as f:
+        return hashlib.md5(f.read()).hexdigest()
 
 class TqdmUpTo(tqdm):
     
@@ -232,3 +243,23 @@ def download_url(url: str, filename: Union[Path, str]):
 
     with TqdmUpTo(unit = "B", unit_scale = True, unit_divisor = 1024, miniters = 1) as t:
         request.urlretrieve(url, filename, reporthook = t.update_to, data = None)
+        
+class Timer:
+    def __init__(self):
+        self.times = []
+        
+    def start(self):
+        self.start_time = time.time()
+        
+    def stop(self):
+        self.times.append(time.time() - self.start_time)
+        return self.times[-1]
+    
+    def avg(self):
+        return sum(self.times) / len(self.times)
+    
+    def sum(self):
+        return sum(self.times)
+    
+    def cumsum(self):
+        return np.array(self.times).cumsum().tolist()
