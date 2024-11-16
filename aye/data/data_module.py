@@ -1,5 +1,7 @@
+from aye.utils import download_url, compute_md5, compute_sha256
+from pathlib import Path
 from torch.utils.data import DataLoader
-from typing import Optional
+from typing import Dict, Optional
 
 import argparse
 import os
@@ -15,6 +17,29 @@ def load_and_print_info(data_module_class) -> None:
     dataset.prepare_data()
     dataset.setup()
     print(dataset)
+    
+def _download_raw_dataset(metadata: Dict, dl_dirname: Path) -> Path:
+    dl_dirname.mkdir(parents = True, exist_ok = True)
+    filename = dl_dirname / metadata["filename"]
+    
+    if filename.exists():
+        return 
+    
+    print(f"Downloading raw dataset from {metadata['url']} to {filename}...")
+    download_url(metadata["url"], filename)
+    
+    if metadata["hashtype"] == "md5sum":
+        print("Computing Md5sum...")
+        md5sum = compute_md5(filename)
+        if md5sum != metadata["md5sum"]:
+            raise ValueError("Downloaded data file Md5sum does not match that listed in metadata document.")
+    elif metadata["hashtype"] == "sha256":
+        print("Computing SHA-256...")
+        sha256 = compute_sha256(filename)
+        if sha256 != metadata["sha256"]:
+            raise ValueError("Downloaded data file SHA-256 does not match that listed in metadata document.")
+    
+    return filename
 
 BATCH_SIZE = 128
 
