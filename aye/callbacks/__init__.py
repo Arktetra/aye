@@ -6,6 +6,7 @@ from .early_stopping import EarlyStopping
 from .model_checkpoint import ModelCheckpoint
 from .progress_bar import ProgressBar
 from .progress_board import ProgressBoard
+from .recorder import RecorderCallback
 
 from .LRfinder import LRFinderCallback
 
@@ -21,4 +22,5 @@ __all__ = [
     "SingleBatchCallback", 
     "MetricsCallback",
     "ModelCheckpoint",
+    "RecorderCallback"
 ]
