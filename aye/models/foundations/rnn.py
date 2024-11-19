@@ -2,10 +2,11 @@ import torch
 import torch.nn as nn
 
 class RNN(nn.Module):
-    def __init__(self, num_inputs, num_hiddens, sigma = torch.tensor(0.01)):
+    def __init__(self, num_inputs, num_hiddens, sigma = 0.01):
         super().__init__()
         self.num_inputs = num_inputs
         self.num_hiddens = num_hiddens
+        self.sigma = sigma
         self.W_xh = nn.Parameter(
             torch.randn((num_inputs, num_hiddens)) * sigma
         )
