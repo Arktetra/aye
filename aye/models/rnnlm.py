@@ -58,14 +58,15 @@ class RNNLM(BaseModel):
                 param.grad[:] *= grad_clip_value / norm 
                 
     def predict(self, prefix, num_preds, vocab, device = None):
-        outputs, state = vocab[prefix[0]], None 
+        outputs, state = [vocab[prefix[0]]], None 
         
         for i in range(len(prefix) + num_preds - 1):
             X = torch.tensor(outputs[-1])
             embeds = self.one_hot(X)
-            rnn_outputs, state = self.rnn(embeds, state)
+            print(embeds.shape)
+            rnn_outputs, state = self.rnn(embeds.reshape(1, 1, -1), state)      # reshape to (batch_size, num_steps, sequence)
             
-            if i < len(prefix - 1):
+            if i < len(prefix) - 1:
                 outputs.append(vocab[prefix[i + 1]])
             else:
                 Y = self.output_layer(rnn_outputs)
