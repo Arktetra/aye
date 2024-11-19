@@ -1,6 +1,7 @@
 """The AyeModule - an nn.Module with additional features."""
 
-from typing import Any
+from pathlib import Path
+from typing import Any, Union
 from typing_extensions import override
 
 import torch
@@ -80,6 +81,10 @@ class AyeModule(nn.Module):
     
     def backward(self, loss: torch.Tensor, *args: Any, **kwargs: Any) -> None:
         loss.backward(*args, **kwargs)
+        
+    def load_ckpt(self, ckpt_path: Union[Path, str]):
+        self.load_state_dict(torch.load(ckpt_path, weights_only = True))
+        self.eval()
         
     def summary(self, x_shape):
         """
