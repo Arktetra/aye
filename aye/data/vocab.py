@@ -1,6 +1,7 @@
 from typing import List, Union, Tuple
 
 import collections
+import torch
 
 class Vocab:
     def __init__(self, tokens: List[str] = [], min_freq: int = 0, reserved_tokens: List[str] = []):
@@ -24,7 +25,11 @@ class Vocab:
         return [self.__getitem__(token) for token in tokens]
     
     def to_tokens(self, indices: Union[int, List[int]]):
-        if hasattr(indices, "__len__") and len(indices) > 1:
+        if isinstance(indices, torch.Tensor) and indices.ndim == 2:
+            tokens = []
+            tokens.append([self.to_tokens(idxs) for idxs in indices])
+            return tokens
+        elif hasattr(indices, "__len__") and len(indices) > 1:
             return [self.idx_to_token[int(idx)] for idx in indices]
         return self.idx_to_token[indices]
     
