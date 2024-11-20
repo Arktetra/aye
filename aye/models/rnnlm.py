@@ -21,10 +21,10 @@ class RNNLMScratch(BaseModel):
         
     def init_params(self):
         self.W_hq = nn.Parameter(
-            torch.randn(self.rnn.num_hiddens, self.vocab_size) * self.rnn.sigma
+            torch.randn((self.rnn.num_hiddens, self.vocab_size), device = self.device) * self.rnn.sigma
         )
         self.b_q = nn.Parameter(
-            torch.zeros(self.vocab_size)
+            torch.zeros(self.vocab_size, device = self.device)
         )
         
     def output_layer(self, rnn_outputs):
@@ -55,8 +55,8 @@ class RNNLMScratch(BaseModel):
         
         for i in range(len(prefix) + num_preds - 1):
             X = torch.tensor(outputs[-1]).to(device)
-            embeds = self.one_hot(X)
-            rnn_outputs, state = self.rnn(embeds.reshape(1, 1, -1), state)      # reshape to (batch_size, num_steps, sequence)
+            embeds = self.one_hot(X).reshape(1, 1, -1)      # reshape to (batch_size, num_steps, sequence)
+            rnn_outputs, state = self.rnn(embeds, state)      
             
             if i < len(prefix) - 1:
                 outputs.append(vocab[prefix[i + 1]])

@@ -5,19 +5,20 @@ from aye import AyeModule
 
 class RNNScratch(nn.Module):
     """The RNN model implemented from scratch."""
-    def __init__(self, num_inputs, num_hiddens, sigma = 0.01):
+    def __init__(self, num_inputs, num_hiddens, sigma = 0.01, device = None):
         super().__init__()
         self.num_inputs = num_inputs
         self.num_hiddens = num_hiddens
         self.sigma = sigma
         self.W_xh = nn.Parameter(
-            torch.randn((num_inputs, num_hiddens)) * sigma
+            torch.randn((num_inputs, num_hiddens), device = device) * sigma,
+            
         )
         self.W_hh = nn.Parameter(
-            torch.randn((num_hiddens, num_hiddens)) * sigma
+            torch.randn((num_hiddens, num_hiddens), device = device) * sigma,
         )
         self.b_h = nn.Parameter(
-            torch.randn((1, num_hiddens)) * sigma
+            torch.randn((1, num_hiddens), device = device) * sigma,
         )
         
     def forward(self, inputs, state = None):
@@ -39,7 +40,7 @@ class RNNScratch(nn.Module):
     
 class RNN(AyeModule):
     """RNN model implemented with high-level APIs."""
-    def __init__(self, num_inputs, num_hiddens, device = None):
+    def __init__(self, num_inputs, num_hiddens, sigma = 0.01, device = None):
         super().__init__()
         self.num_inputs = num_inputs 
         self.num_hiddens = num_hiddens 
