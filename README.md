@@ -6,12 +6,16 @@ A toy framework for deep learning.
 
 Currently, the following models are implemented:
 
-1. LeNet-5
-2. AlexNet
-3. VGG
-4. NiN
-5. GoogLeNet
-6. ResNet
+1. [LeNet-5](https://github.com/Arktetra/aye/blob/main/aye/models/lenet.py)
+2. [AlexNet](https://github.com/Arktetra/aye/blob/main/aye/models/alexnet.py)
+3. [VGG](https://github.com/Arktetra/aye/blob/main/aye/models/vgg.py)
+4. [NiN](https://github.com/Arktetra/aye/blob/main/aye/models/nin.py)
+5. [GoogLeNet](https://github.com/Arktetra/aye/blob/main/aye/models/googlenet.py)
+6. [ResNet](https://github.com/Arktetra/aye/blob/main/aye/models/resnet.py)
+7. [RNN](https://github.com/Arktetra/aye/blob/main/aye/models/foundations/rnn.py)
+8. [LSTM](https://github.com/Arktetra/aye/blob/main/aye/models/foundations/lstm.py)
+9. [GRU](https://github.com/Arktetra/aye/blob/main/aye/models/foundations/gru.py)
+10. [A character based language model](https://github.com/Arktetra/aye/blob/main/aye/models/rnnlm.py)
 
 ## References
 
