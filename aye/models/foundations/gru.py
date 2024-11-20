@@ -53,14 +53,17 @@ class GRUScratch(nn.Module):
         return outputs, H
     
 class GRU(AyeModule):
-    def __init__(self, num_inputs, num_hiddens, sigma = 0.01, device = None):
+    def __init__(self, num_inputs, num_hiddens, num_layers = 1, device = None):
         super().__init__()
         self.num_inputs = num_inputs
         self.num_hiddens = num_hiddens 
-        self.sigma = sigma
+        self.num_layers = num_layers
         self.device = device 
         
-        self.gru = nn.GRU(input_size = num_inputs, hidden_size = num_hiddens, device = self.device)
+        self.gru = nn.GRU(
+            input_size = num_inputs, hidden_size = num_hiddens, 
+            num_layers = num_layers, device = self.device
+        )
         
     def forward(self, X, H = None):
         return self.gru(X, H)
