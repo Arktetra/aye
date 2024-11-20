@@ -1,7 +1,10 @@
 import torch
 import torch.nn as nn
 
+from aye import AyeModule
+
 class RNNScratch(nn.Module):
+    """The RNN model implemented from scratch."""
     def __init__(self, num_inputs, num_hiddens, sigma = 0.01):
         super().__init__()
         self.num_inputs = num_inputs
@@ -33,3 +36,15 @@ class RNNScratch(nn.Module):
             outputs.append(state)
             
         return outputs, state
+    
+class RNN(AyeModule):
+    """RNN model implemented with high-level APIs."""
+    def __init__(self, num_inputs, num_hiddens, device = None):
+        super().__init__()
+        self.num_inputs = num_inputs 
+        self.num_hiddens = num_hiddens 
+        
+        self.rnn = nn.RNN(input_size = num_inputs, hidden_size = num_hiddens, device = device)
+        
+    def forward(self, inputs, state = None):
+        return self.rnn(inputs, state)

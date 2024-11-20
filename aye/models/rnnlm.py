@@ -8,13 +8,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class RNNLMScratch(BaseModel):
-    """RNN based character level language model."""
-    def __init__(self, rnn: RNN, vocab_size, criterion = F.cross_entropy, lr = 0.01):
+    """RNN based character level language model implemented from scratch."""
+    def __init__(self, rnn: RNN, vocab_size, criterion = F.cross_entropy, lr = 1e-3, device = None):
         super().__init__()
         self.rnn = rnn
         self.vocab_size = vocab_size 
         self.criterion = criterion
         self.lr = lr
+        self.device = device
         
         self.init_params()
         
@@ -48,14 +49,6 @@ class RNNLMScratch(BaseModel):
     
     def one_hot(self, x):
         return F.one_hot(x, self.vocab_size).type(torch.float32)
-    
-    def clip_gradients(self, grad_clip_value):
-        params = [p for p in self.parameters()]
-        norm = torch.sqrt(sum(p.grad ** 2 for p in params))
-        
-        if norm > grad_clip_value:
-            for param in params:
-                param.grad[:] *= grad_clip_value / norm 
                 
     def predict(self, prefix, num_preds, vocab, device = None):
         outputs, state = [vocab[prefix[0]]], None 
@@ -73,6 +66,11 @@ class RNNLMScratch(BaseModel):
         
         return "".join([vocab.idx_to_token[i] for i in outputs])
     
+class RNNLM(RNNLMScratch):
+    """RNN-based character level language model implemented with high-level APIs."""
     
+    def init_params(self):
+        self.linear = nn.LazyLinear(self.vocab_size, device = self.device)
         
-    
+    def output_layer(self, hiddens):
+        return self.linear(hiddens)
