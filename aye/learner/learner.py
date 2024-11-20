@@ -10,7 +10,7 @@ from aye.callbacks import (
 )
 from aye.utils import has_instance
 from torch.utils.data import DataLoader
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Union
 
 import torch
 
@@ -23,6 +23,7 @@ class Learner:
         accelerator: Optional[str] = None, 
         max_epochs: Optional[int] = None, 
         callbacks: Sequence[Callback] = [],
+        grad_clip_val: Optional[Union[int, float]] = None,
         enable_checkpointing: bool = True,
         enable_progress_bar: bool = True
     ) -> None:
@@ -30,6 +31,7 @@ class Learner:
         self.accelerator = accelerator if accelerator is not None else "cpu"
         self.epochs = max_epochs if max_epochs is not None else 1000
         self.callbacks = callbacks
+        self.grad_clip_val = grad_clip_val
         self.enable_checkpointing = enable_checkpointing
         self.log_dict = {}
         
@@ -59,6 +61,10 @@ class Learner:
         if self.training:
             loss = model.training_step(batch, self.batch_idx)
             model.backward(loss)
+            
+            if self.grad_clip_val:
+                self.clip_gradients(self.grad_clip_val, model)
+            
             model.optimizer_step(self.optimizer)
             model.optimizer_zero_grad(self.optimizer)
         else:
@@ -76,6 +82,7 @@ class Learner:
         val_dataloader: VAL_DATALOADER, 
     ):
         self.training = True
+        model.train()
         for batch_idx, batch in enumerate(train_dataloader):
             self.batch_idx, self.batch = batch_idx, batch
             self.fit_one_batch(model)
@@ -103,6 +110,16 @@ class Learner:
         for epoch in range(self.epochs):
             self.epoch = epoch
             self.fit_epoch(model, train_dataloader, val_dataloader)
+            
+    def clip_gradients(self, grad_clip_value: Union[int, float], model: AyeModule):
+        """Clips the gradient using norm."""
+        params = [p for p in model.parameters()]
+        norm = torch.sqrt(sum(p.grad ** 2 for p in params))
+        
+        if norm > grad_clip_value:
+            for param in params:
+                param.grad[:] *= grad_clip_value / norm 
                                 
     def callback(self, method_name: str):
         run_callbacks(self.callbacks, method_name, self)
+    
