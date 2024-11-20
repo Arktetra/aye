@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class RNNLM(BaseModel):
+class RNNLMScratch(BaseModel):
     """RNN based character level language model."""
     def __init__(self, rnn: RNN, vocab_size, criterion = F.cross_entropy, lr = 0.01):
         super().__init__()

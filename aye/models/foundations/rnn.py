@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-class RNN(nn.Module):
+class RNNScratch(nn.Module):
     def __init__(self, num_inputs, num_hiddens, sigma = 0.01):
         super().__init__()
         self.num_inputs = num_inputs
