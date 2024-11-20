@@ -61,7 +61,7 @@ class RNNLM(BaseModel):
         outputs, state = [vocab[prefix[0]]], None 
         
         for i in range(len(prefix) + num_preds - 1):
-            X = torch.tensor(outputs[-1])
+            X = torch.tensor(outputs[-1]).to(device)
             embeds = self.one_hot(X)
             print(embeds.shape)
             rnn_outputs, state = self.rnn(embeds.reshape(1, 1, -1), state)      # reshape to (batch_size, num_steps, sequence)
