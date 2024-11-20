@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn 
 
 class LSTMScratch(nn.Module):
+    """Implementation of LSTM model from scratch."""
     def __init__(self, num_inputs, num_hiddens, device, sigma = 0.01):
         super().__init__()
         self.num_inputs = num_inputs
@@ -58,7 +59,8 @@ class LSTMScratch(nn.Module):
         return outputs, (H, C)
     
 class LSTM(AyeModule):
-    def __init__(self, num_inputs, num_hiddens, num_layers = 1, device = None):
+    """Implementation of LSTM model using high-level API."""
+    def __init__(self, num_inputs, num_hiddens, num_layers = 1, bidirectional = False, device = None):
         super().__init__()
         self.num_inputs = num_inputs
         self.num_hiddens = num_hiddens 
@@ -66,7 +68,8 @@ class LSTM(AyeModule):
         
         self.lstm = nn.LSTM(
             input_size = num_inputs, hidden_size = num_hiddens,
-            num_layers = num_layers, device = device
+            num_layers = num_layers, bidirectional = bidirectional,
+            device = device
         )
         
     def forward(self, inputs, H_C = None):

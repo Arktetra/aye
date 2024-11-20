@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn 
 
 class GRUScratch(nn.Module):
+    """Implementation of GRU model from scratch."""
     def __init__(self, num_inputs, num_hiddens, sigma = 0.01, device = None):
         super().__init__()
         self.num_inputs = num_inputs
@@ -53,7 +54,8 @@ class GRUScratch(nn.Module):
         return outputs, H
     
 class GRU(AyeModule):
-    def __init__(self, num_inputs, num_hiddens, num_layers = 1, device = None):
+    """Implementation of GRU model using high-level API."""
+    def __init__(self, num_inputs, num_hiddens, num_layers = 1, bidirectional = False, device = None):
         super().__init__()
         self.num_inputs = num_inputs
         self.num_hiddens = num_hiddens 
@@ -62,7 +64,8 @@ class GRU(AyeModule):
         
         self.gru = nn.GRU(
             input_size = num_inputs, hidden_size = num_hiddens, 
-            num_layers = num_layers, device = self.device
+            num_layers = num_layers, bidirectional = bidirectional,
+            device = self.device
         )
         
     def forward(self, X, H = None):
