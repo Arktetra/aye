@@ -62,6 +62,8 @@ class DataModule:
         
         self.on_gpu = isinstance(self.args.get("gpus", None), (str, int))
         
+        self.shuffle = True
+        
     @classmethod
     def data_dirname(cls):
         return metadata.DATA_DIRNAME
@@ -103,7 +105,7 @@ class DataModule:
         return DataLoader(
             dataset = self.train_dataset,
             batch_size = self.batch_size,
-            shuffle = True,
+            shuffle = self.shuffle,
             num_workers = self.num_workers,
             pin_memory = self.on_gpu
         )
