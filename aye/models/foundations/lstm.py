@@ -58,10 +58,12 @@ class LSTMScratch(nn.Module):
         return outputs, (H, C)
     
 class LSTM(AyeModule):
-    def __init__(self, num_inputs, num_hiddens):
+    def __init__(self, num_inputs, num_hiddens, sigma = 0.01, device = None):
         super().__init__()
         self.num_inputs = num_inputs
         self.num_hiddens = num_hiddens 
+        self.device = device
+        self.sigma = sigma
         
         self.lstm = nn.LSTM(input_size = num_inputs, hidden_size = num_hiddens)
         
