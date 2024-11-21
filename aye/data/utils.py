@@ -49,7 +49,6 @@ class BaseDataset(torch.utils.data.Dataset):
             
         return datum, target
 
-
 def split_dataset(
     base_dataset: BaseDataset,
     fraction: float,
@@ -83,3 +82,13 @@ def resize_image(image: Image.Image, scale_factor: int) -> Image.Image:
         return image
     
     return image.resize((image.width // scale_factor, image.height // scale_factor), resample = Image.BILINEAR)
+
+def no_space(char: str, prev_char: str):
+    """Check whether there is space before a punctuation or not."""
+    
+    return char in ",.!?" and prev_char != " "
+
+def pad_or_trim(seq: str, time_steps: int):
+    """Pad or trim a sequence depending on the value of time steps."""
+    
+    return seq[:time_steps] if len(seq) > time_steps else seq + ["<pad>"] * (time_steps - len(seq))
