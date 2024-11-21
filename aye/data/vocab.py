@@ -25,7 +25,7 @@ class Vocab:
         return [self.__getitem__(token) for token in tokens]
     
     def to_tokens(self, indices: Union[int, List[int]]):
-        if isinstance(indices, torch.Tensor) and indices.ndim == 2:
+        if (isinstance(indices, torch.Tensor) and indices.ndim == 2) or isinstance(indices[0], list):
             tokens = []
             tokens.append([self.to_tokens(idxs) for idxs in indices])
             return tokens
