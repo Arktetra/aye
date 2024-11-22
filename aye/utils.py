@@ -244,6 +244,15 @@ def download_url(url: str, filename: Union[Path, str]):
     with TqdmUpTo(unit = "B", unit_scale = True, unit_divisor = 1024, miniters = 1) as t:
         request.urlretrieve(url, filename, reporthook = t.update_to, data = None)
         
+def check_len(tensor: torch.Tensor, n):
+    assert len(tensor) == n, \
+        f"length of tensor is {len(tensor)} which is different from {n}."
+        
+def check_shape(tensor: torch.Tensor, shape):
+    """Check the shape of a tensor."""
+    assert tensor.shape == shape, \
+        f"shape of tensor is {tensor.shape} which is different from {shape}."
+
 class Timer:
     def __init__(self):
         self.times = []
