@@ -114,7 +114,8 @@ class Learner:
     def clip_gradients(self, grad_clip_value: Union[int, float], model: AyeModule):
         """Clips the gradient using norm."""
         params = [p for p in model.parameters()]
-        norm = torch.sqrt(sum(p.grad ** 2 for p in params))
+        
+        norm = torch.sqrt(sum(torch.sum(p.grad ** 2) for p in params))
         
         if norm > grad_clip_value:
             for param in params:
