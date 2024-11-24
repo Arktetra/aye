@@ -82,7 +82,8 @@ class Seq2Seq(EncoderDecoder):
     
     def __shared_step(self, batch, batch_idx):
         self.logits = self(*batch)
-        return self.criterion(self.logits.swapdims(1, 2), batch[-1])
+        # return self.criterion(self.logits.swapdims(1, 2), batch[-1])
+        return self.loss(self.logits.swapdims(1, 2), batch[-1])
     
     def training_step(self, batch, batch_idx):
         return self.__shared_step(batch, batch_idx)
@@ -93,6 +94,8 @@ class Seq2Seq(EncoderDecoder):
     def configure_optimizers(self):
         return torch.optim.Adam(params = self.parameters(), lr = self.lr)
     
-    def loss(self, Y: torch.Tensor, Y_hat: torch.Tensor):
-        mask = (Y.reshape(-1) != self.tgt_pad).type(torch.float32).requires_grad_()
-        return (1 * mask).sum() / mask.sum()
+    def loss(self, Y_hat: torch.Tensor, Y: torch.Tensor):
+        """Masked cross entropy loss."""
+        l = self.criterion(Y_hat, Y, reduction = "none")
+        mask = (Y != self.tgt_pad).type(torch.float32)
+        return (l * mask).sum() / mask.sum()
