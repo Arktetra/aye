@@ -2,6 +2,12 @@
 
 A toy framework for deep learning.
 
+## Installation
+
+```bash
+pip install -e .
+```
+
 ## Models
 
 Currently, the following models are implemented:
