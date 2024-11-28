@@ -20,13 +20,17 @@ class BaseDataset(torch.utils.data.Dataset):
     
     def __init__(
         self, 
-        data: SequenceOrTensor, 
-        targets: SequenceOrTensor, 
+        data: Union[SequenceOrTensor, Tuple], 
+        targets: Optional[SequenceOrTensor] = None, 
         transform: Optional[Callable] = None, 
         target_transform: Optional[Callable] = None,
     ) -> None:
-        if len(data) != len(targets):
-            raise ValueError("Data and targets must be of equal length.")
+        if isinstance(data, tuple):
+            if not all(len(x) == len(targets) for x in data):
+                raise ValueError("Data and targets must be of equal length.")
+        else:
+            if len(data) != len(targets):
+                raise ValueError("Data and targets must be of equal length.")
         
         self.data = data
         self.targets = targets
@@ -39,15 +43,27 @@ class BaseDataset(torch.utils.data.Dataset):
     
     def __getitem__(self, idx) -> Tuple[Any, Any]:
         """Return a datum and its target after processing by transforms."""
-        datum, target = self.data[idx], self.targets[idx]
+        if isinstance(self.data, tuple):
+            datum = [d[idx] for d in self.data]
+            target = self.targets[idx]
+            
+            if self.transform is not None:
+                datum = [self.transform[d] for d in datum] 
+                
+            if self.target_transform is not None:
+                target = self.target_transform(target)
+                
+            return *datum, target
+        else:
+            datum, target = self.data[idx], self.targets[idx]
+            
+            if self.transform is not None:
+                datum = self.transform(datum)       
         
-        if self.transform is not None:
-            datum = self.transform(datum)
-            
-        if self.target_transform is not None:
-            target = self.target_transform(target)
-            
-        return datum, target
+            if self.target_transform is not None:
+                target = self.target_transform(target)
+                
+            return datum, target
 
 def split_dataset(
     base_dataset: BaseDataset,
