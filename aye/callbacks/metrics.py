@@ -39,14 +39,14 @@ class MetricsCallback(Callback):
         self._log(log)
 
     def after_batch(self, learner: "aye.Learner"):
-        x, y = to_cpu(learner.batch)
+        y = to_cpu(learner.batch[-1])
         
         if learner.training:
             for m in self.train_metrics.values():
                 m.update(to_cpu(learner.preds), y)
                 
-            self.train_loss.update(to_cpu(learner.loss), weight = len(x))
+            self.train_loss.update(to_cpu(learner.loss), weight = len(y))
         else:
             for m in self.val_metrics.values():
                 m.update(to_cpu(learner.preds), y)
-            self.val_loss.update(to_cpu(learner.loss), weight = len(x))
+            self.val_loss.update(to_cpu(learner.loss), weight = len(y))
