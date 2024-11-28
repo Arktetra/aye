@@ -22,6 +22,7 @@ Currently, the following models are implemented:
 8. [LSTM](https://github.com/Arktetra/aye/blob/main/aye/models/foundations/lstm.py)
 9. [GRU](https://github.com/Arktetra/aye/blob/main/aye/models/foundations/gru.py)
 10. [A character based language model](https://github.com/Arktetra/aye/blob/main/aye/models/rnnlm.py)
+11. [A sequence to sequence model](https://github.com/Arktetra/aye/blob/main/aye/models/foundations/seq2seq.py)
 
 ## References
 
