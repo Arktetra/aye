@@ -52,18 +52,18 @@ class FraEng(DataModule):
             
             if self.max_examples:
                 return BaseDataset(
-                    self.src_array[:self.max_examples], 
+                    (self.src_array[:self.max_examples], self.tgt_array[:self.max_examples, :-1], self.src_valid_len),
                     self.tgt_array[:self.max_examples, 1:], 
                     transform, 
                     target_transform
                 )
             else:
                 return BaseDataset(
-                    self.src_array, 
-                    self.tgt_array, 
+                    (self.src_array, self.tgt_array[:, :-1], self.src_valid_len),
+                    self.tgt_array[:, 1:], 
                     transform, 
                     target_transform
-                )
+                )  
         
         target_transform = None 
         
@@ -84,14 +84,16 @@ class FraEng(DataModule):
         if self.train_dataset is None and self.val_dataset is None:
             return basic 
         
-        x, y = next(iter(self.train_dataloader()))
+        src, tgt, valid_src_len, label = next(iter(self.train_dataloader()))
         
         data = (
             f"  Source vocab size: {len(self.src_vocab)}\n"
             f"  Target vocab size: {len(self.tgt_vocab)}\n"
             f"  Train/val sizes: {len(self.train_dataset)}, {len(self.val_dataset)}\n"
-            f"  Batch x stats: {(x.shape, x.dtype)}\n"
-            f"  Batch y stats: {(y.shape, y.dtype)}\n"
+            f"  Batch src stats: {(src.shape, src.dtype)}\n"
+            f"  Batch valid_src_len stats: {(valid_src_len.shape, valid_src_len.dtype)}\n"
+            f"  Batch tgt stats: {(tgt.shape, tgt.dtype)}\n"
+            f"  Batch label stats: {(label.shape, label.dtype)}\n"
         )
         
         return basic + data
@@ -129,7 +131,13 @@ class FraEng(DataModule):
         valid_len = (array != vocab["<pad>"]).type(torch.int32).sum(dim = 1)
         
         return array, vocab, valid_len
-        
+    
+    def build(self, src_sentences, tgt_sentences):
+        raw_text = "\n".join([src + "\t" + tgt for src, tgt in zip(src_sentences, tgt_sentences)])
+        src, tgt = self.__tokenize(raw_text)
+        src_array, _, src_valid_len = self.__build_array(src, vocab = self.src_vocab)
+        tgt_array, _, _ = self.__build_array(tgt, vocab = self.tgt_vocab, is_target = True)
+        return src_array, tgt_array[:, :-1], src_valid_len, tgt_array[:, 1:]
     
     def show_list_len_pair_hist(self):
         text = self._preprocess()
