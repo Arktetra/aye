@@ -252,6 +252,40 @@ def check_shape(tensor: torch.Tensor, shape):
     """Check the shape of a tensor."""
     assert tensor.shape == shape, \
         f"shape of tensor is {tensor.shape} which is different from {shape}."
+        
+def random_float_test(module: torch.nn.Module, shape, device = "cpu"):
+    model = module.to(device)
+    rand_input = torch.randn(shape).to(device)
+    print(f"Input shape: {rand_input.shape}")
+    output = model(rand_input)
+    if isinstance(output, tuple):
+        output = output[0]
+    print(f"Output shape: {output.shape}")
+    
+def random_int_test(module: torch.nn.Module, shape, device = "cpu"):
+    model = module.to(device)
+    rand_input = torch.randint(100, 1000, shape).to(device)
+    print(f"Input shape: {rand_input.shape}")
+    output = model(rand_input)
+    if isinstance(output, tuple):
+        output = output[0]
+    print(f"Output shape: {output.shape}")
+    
+def load_gpt2_test(module: torch.nn.Module, gpt2, input, device = "cpu"):
+    model = module.to(device)
+    model.load_state_dict(gpt2.state_dict(), strict = False)
+    print(f"Input shape: {input.shape}")
+    output = model(input)
+    if isinstance(output, tuple):
+        output = output[0]
+    print(f"Output shape: {output.shape}")
+    try:
+        reference_output = gpt2(input)
+    except:
+        reference_output = gpt2(input, input, input)
+    print(f"Reference output shape: {reference_output.shape}")
+    comparison = torch.isclose(output, reference_output, atol = 1e-4, rtol = 1e-3)
+    print(f"{comparison.sum() / comparison.numel():.2%} of the values are correct.")
 
 class Timer:
     def __init__(self):
