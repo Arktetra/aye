@@ -286,6 +286,14 @@ def load_gpt2_test(module: torch.nn.Module, gpt2, input, device = "cpu"):
     print(f"Reference output shape: {reference_output.shape}")
     comparison = torch.isclose(output, reference_output, atol = 1e-4, rtol = 1e-3)
     print(f"{comparison.sum() / comparison.numel():.2%} of the values are correct.")
+    
+def gelu_new(input: torch.Tensor):
+    """Implementation of GeLU used by GPT2, which is subtly different from PyTorch's."""
+    return (
+        0.5 
+        * input
+        * (1.0 + torch.tanh(np.sqrt(2.0 / np.pi) * (input + 0.044715 * torch.pow(input, 3.0))))
+    )
 
 class Timer:
     def __init__(self):
