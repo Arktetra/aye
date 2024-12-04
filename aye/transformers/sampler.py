@@ -214,7 +214,9 @@ class TransformerSampler:
         Returns:
             int: token id of the next token.
         """
-        pass 
+        top_logits, top_idx = torch.topk(logits, k)
+        idx = torch.distributions.categorical.Categorical(logits = top_logits).sample()
+        return top_idx[idx].item()
     
     @staticmethod 
     def sample_top_p(
@@ -233,4 +235,12 @@ class TransformerSampler:
         Returns:
             int: token id of the next token.
         """
-        pass
+        sorted_logits, indices = torch.sort(logits, dim = -1, descending = True)
+        probs = sorted_logits.softmax(dim = -1)
+        cum_probs = probs.cumsum(dim = -1)
+        n_keep = torch.searchsorted(cum_probs, top_p, right = True).item() + 1
+        n_keep = max(n_keep, min_tokens_to_keep)
+        keep_idx = indices[:n_keep]
+        keep_logits = logits[:n_keep]
+        idx = D.categorical.Categorical(logits = keep_logits).sample()
+        return keep_idx[idx].item()
