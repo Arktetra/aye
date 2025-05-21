@@ -1,9 +1,16 @@
 [project]
 name = "aye"
-version = "0.1"
+version = "0.1.1"
+dependencies = [
+    
+]
 
-[tool.setuptools]
-packages = ["aye"]
+[project.urls]
+Repository = "https://github.com/Arktetra/aye.git"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
 
 [tool.ruff]
 line-length = 120
